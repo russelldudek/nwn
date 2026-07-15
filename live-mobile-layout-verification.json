@@ -1,0 +1,10 @@
+{
+  "url": "https://russelldudek.github.io/nwn/",
+  "httpStatus": 200,
+  "gateGeometryRulesFound": true,
+  "stackedMobileKpiRulesFound": true,
+  "narrowViewportAuditFound": true,
+  "pdfEndpointsVerified": 5,
+  "verifiedAt": "2026-07-15T16:52:50.620562+00:00",
+  "sourceCommit": "d39c1a6b49d996c15a502b402e38a305d020d81a"
+}
