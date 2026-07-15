@@ -65,6 +65,48 @@
   color: #001455;
 }
 
+/* Gate anatomy: reserve separate rows for the ring, title, description, and state. */
+.airlock-track::before {
+  top: 52px;
+}
+
+.gate {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 116px auto auto auto;
+  justify-items: center;
+  align-content: start;
+  justify-content: stretch;
+  padding: 0 8px 24px;
+}
+
+.gate-ring {
+  position: relative;
+  top: auto;
+  grid-row: 1;
+  align-self: start;
+}
+
+.gate h4 {
+  grid-row: 2;
+  min-height: 2.4em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.gate p {
+  grid-row: 3;
+  margin: 0;
+}
+
+.gate-state {
+  grid-row: 4;
+  margin-top: 12px;
+}
+
 @media screen {
   .doc-contact,
   .doc-contact a,
@@ -75,6 +117,17 @@
 
   .inline-link {
     font-size: .78rem;
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .airlock-track::before {
+    display: none;
+  }
+
+  .gate {
+    grid-template-rows: 112px auto auto auto;
+    padding: 0 12px 28px;
   }
 }
 
@@ -115,6 +168,38 @@
   .doc-shell,
   .paper {
     max-width: 100%;
+  }
+
+  .airlock-track {
+    gap: 18px 12px;
+    margin-top: 36px;
+  }
+
+  .gate {
+    grid-template-rows: 98px auto auto auto;
+    padding: 0 8px 26px;
+  }
+
+  .gate-ring {
+    width: 88px;
+    height: 88px;
+    border-width: 6px;
+  }
+
+  .gate-ring::after {
+    width: 48px;
+    height: 48px;
+  }
+
+  .gate h4 {
+    min-height: 2.4em;
+    font-size: .98rem;
+  }
+
+  .gate p {
+    max-width: 150px;
+    font-size: .78rem;
+    line-height: 1.5;
   }
 
   .kpi-table {
