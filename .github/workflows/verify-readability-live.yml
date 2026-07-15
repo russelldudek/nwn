@@ -1,0 +1,79 @@
+name: Verify live readability repair
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-readability-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for revised Pages deployment
+        run: |
+          set -euo pipefail
+          base='https://russelldudek.github.io/nwn'
+          ready='false'
+          for attempt in $(seq 1 30); do
+            homepage_status=$(curl -L -sS -o /tmp/home.html -w '%{http_code}' "$base/" || true)
+            fragment_status=$(curl -L -sS -o /tmp/hero.js -w '%{http_code}' "$base/fragments/index-01.js" || true)
+            style_status=$(curl -L -sS -o /tmp/readability.css -w '%{http_code}' "$base/styles/readability-audit-fixes.css" || true)
+            if [ "$homepage_status" = '200' ] && [ "$fragment_status" = '200' ] && [ "$style_status" = '200' ] \
+              && grep -q 'Run the readiness model' /tmp/hero.js \
+              && grep -q 'class="readiness-scan"' /tmp/hero.js \
+              && grep -q 'Pre-transaction readiness scan' /tmp/hero.js \
+              && ! grep -q 'class="offer-capsule"' /tmp/hero.js \
+              && grep -q 'download-bar .button.dark' /tmp/readability.css; then
+              ready='true'
+              break
+            fi
+            sleep 10
+          done
+          test "$ready" = 'true'
+
+          for pdf in \
+            Russell-Dudek-NWN-Resume.pdf \
+            Russell-Dudek-NWN-Cover-Letter.pdf \
+            NWN-Interview-Thesis-Brief.pdf \
+            NWN-120-Day-Entry-Plan.pdf \
+            O2C-Readiness-Airlock-Worksheet.pdf; do
+            status=$(curl -L -sS -o "/tmp/$pdf" -w '%{http_code}' "$base/docs/$pdf")
+            test "$status" = '200'
+            test "$(stat -c%s "/tmp/$pdf")" -gt 5000
+          done
+
+      - name: Record verification
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          Path('live-readability-verification.json').write_text(json.dumps({
+              'url': 'https://russelldudek.github.io/nwn/',
+              'httpStatus': 200,
+              'primaryCtaFound': True,
+              'sixGateScanFound': True,
+              'rejectedCapsuleAbsent': True,
+              'readabilityStylesFound': True,
+              'pdfEndpointsVerified': 5,
+              'verifiedAt': datetime.now(timezone.utc).isoformat(),
+              'sourceCommit': os.environ['SOURCE_COMMIT']
+          }, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Commit verification record
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add live-readability-verification.json
+          git commit -m 'chore: record live readability verification'
+          git push
