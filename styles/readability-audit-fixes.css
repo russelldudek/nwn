@@ -202,10 +202,71 @@
     line-height: 1.5;
   }
 
-  .kpi-table {
+  /* Tables become labeled reading sequences on small screens; no hidden columns or horizontal scrolling. */
+  .kpi-table,
+  .kpi-table tbody,
+  .kpi-table tr,
+  .kpi-table td {
+    display: block;
     width: 100%;
     max-width: 100%;
     min-width: 0;
+  }
+
+  .kpi-table {
+    overflow: visible;
+    border-radius: 10px;
+  }
+
+  .kpi-table thead {
+    display: none;
+  }
+
+  .kpi-table tr {
+    padding: 20px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .kpi-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .kpi-table td,
+  .kpi-table td:first-child {
+    width: 100%;
+    padding: 0;
+    border: 0;
+  }
+
+  .kpi-table td:first-child {
+    margin-bottom: 14px;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .kpi-table td:nth-child(2),
+  .kpi-table td:nth-child(3) {
+    margin-top: 14px;
+  }
+
+  .kpi-table td:nth-child(2)::before,
+  .kpi-table td:nth-child(3)::before {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--nwn-navy);
+    font-size: .72rem;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .kpi-table td:nth-child(2)::before {
+    content: 'What it reveals';
+  }
+
+  .kpi-table td:nth-child(3)::before {
+    content: 'Decision it should trigger';
   }
 
   .doc-meta-row {
