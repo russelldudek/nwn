@@ -18,11 +18,13 @@ Make growth transactable before it enters the Opportunity-to-Cash engine. Build 
 
 ## Generated documents
 
-- `docs/Russell-Dudek-NWN-Resume.pdf`
-- `docs/Russell-Dudek-NWN-Cover-Letter.pdf`
-- `docs/NWN-Interview-Thesis-Brief.pdf`
-- `docs/NWN-120-Day-Entry-Plan.pdf`
-- `docs/O2C-Readiness-Airlock-Worksheet.pdf`
+- `docs/Russell-Dudek-NWN-Resume.pdf` — 2 pages
+- `docs/Russell-Dudek-NWN-Cover-Letter.pdf` — 1 page
+- `docs/NWN-Interview-Thesis-Brief.pdf` — 2 pages
+- `docs/NWN-120-Day-Entry-Plan.pdf` — 2 pages
+- `docs/O2C-Readiness-Airlock-Worksheet.pdf` — 1 page
+
+The PDF renderer and QA workflow verify exact page counts, extractable text, responsive screenshots, reduced-motion behavior, and the core readiness-airlock interaction before publication.
 
 ## Independence and evidence
 
