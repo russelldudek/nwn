@@ -1,0 +1,98 @@
+name: Acquire public role brief
+
+on:
+  push:
+    paths:
+      - .github/workflows/acquire-role.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch public posting
+        env:
+          JOB_URL: "https://careers-carousel.icims.com/jobs/7335/operations-process-excellence-director/job?mobile=false&width=1712&height=500&bga=true&needsRedirect=false&jan1offset=-300&jun1offset=-240"
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 4 --retry-all-errors --user-agent "Mozilla/5.0" "$JOB_URL" -o role.html
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import json, re
+
+          raw = Path('role.html').read_text(encoding='utf-8', errors='replace')
+
+          class Extractor(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.skip = 0
+                  self.parts = []
+                  self.title = []
+                  self.in_title = False
+                  self.jsonld = []
+                  self.in_jsonld = False
+                  self.json_parts = []
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if tag in {'script','style','noscript','svg'}:
+                      if tag == 'script' and attrs.get('type','').lower() == 'application/ld+json':
+                          self.in_jsonld = True
+                          self.json_parts = []
+                      else:
+                          self.skip += 1
+                  if tag == 'title':
+                      self.in_title = True
+                  if tag in {'p','div','li','h1','h2','h3','h4','br','section','article','tr'} and not self.skip:
+                      self.parts.append('\n')
+              def handle_endtag(self, tag):
+                  if tag == 'script' and self.in_jsonld:
+                      self.jsonld.append(''.join(self.json_parts).strip())
+                      self.in_jsonld = False
+                      self.json_parts = []
+                  elif tag in {'script','style','noscript','svg'} and self.skip:
+                      self.skip -= 1
+                  if tag == 'title':
+                      self.in_title = False
+                  if tag in {'p','div','li','h1','h2','h3','h4','section','article','tr'} and not self.skip:
+                      self.parts.append('\n')
+              def handle_data(self, data):
+                  if self.in_jsonld:
+                      self.json_parts.append(data)
+                  elif not self.skip:
+                      self.parts.append(data)
+                      if self.in_title:
+                          self.title.append(data)
+
+          parser = Extractor()
+          parser.feed(raw)
+          text = ''.join(parser.parts)
+          text = re.sub(r'\r', '', text)
+          text = re.sub(r'[ \t]+', ' ', text)
+          text = re.sub(r'\n\s*\n+', '\n\n', text)
+          text = '\n'.join(line.strip() for line in text.splitlines()).strip()
+          Path('role.txt').write_text(text + '\n', encoding='utf-8')
+          Path('role-title.txt').write_text(''.join(parser.title).strip() + '\n', encoding='utf-8')
+          parsed = []
+          for block in parser.jsonld:
+              try:
+                  parsed.append(json.loads(block))
+              except Exception:
+                  parsed.append({'raw': block})
+          Path('role-jsonld.json').write_text(json.dumps(parsed, indent=2), encoding='utf-8')
+          print(text[:12000])
+          PY
+      - name: Upload public role source
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-role-source
+          path: |
+            role.html
+            role.txt
+            role-title.txt
+            role-jsonld.json
+          retention-days: 1
