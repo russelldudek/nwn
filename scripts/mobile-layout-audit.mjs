@@ -46,80 +46,117 @@ await new Promise((resolve, reject) => {
 const address = server.address();
 if (!address || typeof address === 'string') throw new Error('Unable to start mobile layout audit server.');
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const findings = [];
+const viewports = [
+  ['mobile-390x844', 390, 844],
+  ['narrow-320x568', 320, 568]
+];
 
 try {
-  await page.goto(`http://127.0.0.1:${address.port}/index.html`, { waitUntil: 'load' });
-  await page.waitForTimeout(4200);
+  for (const [name, width, height] of viewports) {
+    const page = await browser.newPage({ viewport: { width, height } });
+    await page.goto(`http://127.0.0.1:${address.port}/index.html`, { waitUntil: 'load' });
+    await page.waitForTimeout(4200);
 
-  const result = await page.evaluate(() => {
-    const table = document.querySelector('.kpi-table');
-    if (!table) return { missing: true };
+    const result = await page.evaluate(() => {
+      const table = document.querySelector('.kpi-table');
+      const airlock = document.querySelector('.airlock-board');
+      if (!table || !airlock) return { missing: true, table: Boolean(table), airlock: Boolean(airlock) };
 
-    const header = table.querySelector('thead');
-    const rows = [...table.querySelectorAll('tbody tr')];
-    const tableRect = table.getBoundingClientRect();
-    const rowChecks = rows.map((row, rowIndex) => {
-      const cells = [...row.querySelectorAll('td')];
-      const rowStyle = getComputedStyle(row);
-      const rowRect = row.getBoundingClientRect();
-      const horizontalPadding = Number.parseFloat(rowStyle.paddingLeft) + Number.parseFloat(rowStyle.paddingRight);
-      const contentWidth = rowRect.width - horizontalPadding;
-      const cellChecks = cells.map((cell, cellIndex) => {
-        const style = getComputedStyle(cell);
-        const rect = cell.getBoundingClientRect();
-        const before = getComputedStyle(cell, '::before');
+      const header = table.querySelector('thead');
+      const rows = [...table.querySelectorAll('tbody tr')];
+      const tableRect = table.getBoundingClientRect();
+      const rowChecks = rows.map((row, rowIndex) => {
+        const cells = [...row.querySelectorAll('td')];
+        const rowStyle = getComputedStyle(row);
+        const rowRect = row.getBoundingClientRect();
+        const horizontalPadding = Number.parseFloat(rowStyle.paddingLeft) + Number.parseFloat(rowStyle.paddingRight);
+        const contentWidth = rowRect.width - horizontalPadding;
+        const cellChecks = cells.map((cell, cellIndex) => {
+          const style = getComputedStyle(cell);
+          const rect = cell.getBoundingClientRect();
+          const before = getComputedStyle(cell, '::before');
+          return {
+            cell: cellIndex + 1,
+            display: style.display,
+            width: rect.width,
+            contentWidth,
+            beforeContent: before.content,
+            text: cell.textContent.trim().slice(0, 70)
+          };
+        });
+        return { row: rowIndex + 1, display: rowStyle.display, width: rowRect.width, contentWidth, cellChecks };
+      });
+
+      const gateChecks = [...airlock.querySelectorAll('.gate')].map((gate, gateIndex) => {
+        const ring = gate.querySelector('.gate-ring')?.getBoundingClientRect();
+        const heading = gate.querySelector('h4')?.getBoundingClientRect();
+        const description = gate.querySelector('p')?.getBoundingClientRect();
+        const state = gate.querySelector('.gate-state')?.getBoundingClientRect();
+        if (!ring || !heading || !description || !state) return { gate: gateIndex + 1, missing: true };
         return {
-          cell: cellIndex + 1,
-          display: style.display,
-          width: rect.width,
-          contentWidth,
-          beforeContent: before.content,
-          text: cell.textContent.trim().slice(0, 70)
+          gate: gateIndex + 1,
+          missing: false,
+          ringHeadingGap: heading.top - ring.bottom,
+          headingDescriptionGap: description.top - heading.bottom,
+          descriptionStateGap: state.top - description.bottom
         };
       });
-      return { row: rowIndex + 1, display: rowStyle.display, width: rowRect.width, contentWidth, cellChecks };
+      const connector = getComputedStyle(document.querySelector('.airlock-track'), '::before');
+
+      return {
+        missing: false,
+        viewportWidth: document.documentElement.clientWidth,
+        documentOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        tableWidth: tableRect.width,
+        headerDisplay: header ? getComputedStyle(header).display : 'missing',
+        rowChecks,
+        gateChecks,
+        connectorDisplay: connector.display
+      };
     });
 
-    return {
-      missing: false,
-      viewportWidth: document.documentElement.clientWidth,
-      documentOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      tableWidth: tableRect.width,
-      headerDisplay: header ? getComputedStyle(header).display : 'missing',
-      rowChecks
-    };
-  });
+    if (result.missing) {
+      findings.push(`${name}: required component missing (${JSON.stringify(result)}).`);
+    } else {
+      if (result.documentOverflow > 2) findings.push(`${name}: document has ${result.documentOverflow}px horizontal overflow.`);
+      if (result.headerDisplay !== 'none') findings.push(`${name}: mobile KPI header remains visible (${result.headerDisplay}).`);
+      if (result.tableWidth < result.viewportWidth * 0.82) findings.push(`${name}: KPI table uses only ${Math.round(result.tableWidth)}px of ${result.viewportWidth}px viewport.`);
+      if (result.connectorDisplay !== 'none') findings.push(`${name}: wrapped Airlock connector remains visible.`);
 
-  if (result.missing) {
-    findings.push('KPI table is missing.');
-  } else {
-    if (result.documentOverflow > 2) findings.push(`Document has ${result.documentOverflow}px horizontal overflow.`);
-    if (result.headerDisplay !== 'none') findings.push(`Mobile KPI header remains visible (${result.headerDisplay}).`);
-    if (result.tableWidth < result.viewportWidth * 0.82) findings.push(`Mobile KPI table uses only ${Math.round(result.tableWidth)}px of ${result.viewportWidth}px viewport.`);
+      for (const row of result.rowChecks) {
+        if (row.display !== 'block') findings.push(`${name}: KPI row ${row.row} is ${row.display}, expected block.`);
+        for (const cell of row.cellChecks) {
+          if (cell.display !== 'block') findings.push(`${name}: KPI row ${row.row} cell ${cell.cell} is ${cell.display}, expected block.`);
+          if (cell.width < cell.contentWidth * 0.98) findings.push(`${name}: KPI row ${row.row} cell ${cell.cell} is not full content width.`);
+          if (cell.cell === 2 && !cell.beforeContent.includes('What it reveals')) findings.push(`${name}: KPI row ${row.row} lacks the “What it reveals” label.`);
+          if (cell.cell === 3 && !cell.beforeContent.includes('Decision it should trigger')) findings.push(`${name}: KPI row ${row.row} lacks the decision label.`);
+        }
+      }
 
-    for (const row of result.rowChecks) {
-      if (row.display !== 'block') findings.push(`KPI row ${row.row} is ${row.display}, expected block.`);
-      for (const cell of row.cellChecks) {
-        if (cell.display !== 'block') findings.push(`KPI row ${row.row} cell ${cell.cell} is ${cell.display}, expected block.`);
-        if (cell.width < cell.contentWidth * 0.98) findings.push(`KPI row ${row.row} cell ${cell.cell} is not full content width.`);
-        if (cell.cell === 2 && !cell.beforeContent.includes('What it reveals')) findings.push(`KPI row ${row.row} lacks the “What it reveals” label.`);
-        if (cell.cell === 3 && !cell.beforeContent.includes('Decision it should trigger')) findings.push(`KPI row ${row.row} lacks the decision label.`);
+      for (const gate of result.gateChecks) {
+        if (gate.missing) {
+          findings.push(`${name}: Airlock gate ${gate.gate} is missing expected children.`);
+          continue;
+        }
+        if (gate.ringHeadingGap < 8) findings.push(`${name}: Airlock gate ${gate.gate} ring-heading gap is ${gate.ringHeadingGap.toFixed(1)}px.`);
+        if (gate.headingDescriptionGap < 4) findings.push(`${name}: Airlock gate ${gate.gate} heading-description gap is ${gate.headingDescriptionGap.toFixed(1)}px.`);
+        if (gate.descriptionStateGap < 6) findings.push(`${name}: Airlock gate ${gate.gate} description-state gap is ${gate.descriptionStateGap.toFixed(1)}px.`);
       }
     }
-  }
 
-  await page.addStyleTag({ content: '.site-header,.skip-link{display:none!important}' });
-  await page.locator('.kpi-table').screenshot({ path: path.join(screens, 'kpi-mobile-390x844.png') });
+    await page.addStyleTag({ content: '.site-header,.skip-link{display:none!important}' });
+    await page.locator('.kpi-table').screenshot({ path: path.join(screens, `kpi-${name}.png`) });
+    await page.locator('.airlock-board').screenshot({ path: path.join(screens, `airlock-clean-${name}.png`) });
+    await page.close();
+  }
 } finally {
-  await page.close();
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
 }
 
 if (findings.length) {
-  throw new Error(`Mobile KPI layout audit failed:\n${findings.join('\n')}`);
+  throw new Error(`Mobile layout audit failed:\n${findings.join('\n')}`);
 }
 
-console.log('Mobile KPI table passed full-width stacked-row geometry and label checks.');
+console.log('Mobile KPI table passed full-width stacked-row geometry and label checks. Airlock gate spacing passed at 390px and 320px.');
