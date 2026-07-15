@@ -182,6 +182,13 @@ try {
           }
           return result;
         };
+        const rect = (element) => {
+          const box = element.getBoundingClientRect();
+          return { top: box.top, right: box.right, bottom: box.bottom, left: box.left, width: box.width, height: box.height };
+        };
+        const horizontalIntersection = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left);
+        const verticalIntersection = (a, b) => Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+        const overlaps = (a, b, tolerance = 1) => horizontalIntersection(a, b) > tolerance && verticalIntersection(a, b) > tolerance;
 
         const controls = [...document.querySelectorAll('a, button')]
           .filter(visible)
@@ -206,6 +213,74 @@ try {
             fontSize: Number.parseFloat(getComputedStyle(element).fontSize)
           }));
 
+        const gateLayoutIssues = [...document.querySelectorAll('.gate')]
+          .filter(visible)
+          .flatMap((gate, index) => {
+            const ring = gate.querySelector('.gate-ring');
+            const heading = gate.querySelector('h4');
+            const description = gate.querySelector('p');
+            const state = gate.querySelector('.gate-state');
+            if (!ring || !heading || !description || !state) return [`gate ${index + 1}: missing expected child`];
+
+            const gateBox = rect(gate);
+            const ringBox = rect(ring);
+            const headingBox = rect(heading);
+            const descriptionBox = rect(description);
+            const stateBox = rect(state);
+            const issues = [];
+
+            if (overlaps(ringBox, headingBox) || ringBox.bottom + 8 > headingBox.top) {
+              issues.push(`gate ${index + 1}: ring intrudes into heading (${Math.round(ringBox.bottom)} > ${Math.round(headingBox.top)})`);
+            }
+            if (overlaps(headingBox, descriptionBox) || headingBox.bottom + 4 > descriptionBox.top) {
+              issues.push(`gate ${index + 1}: heading intrudes into description`);
+            }
+            if (overlaps(descriptionBox, stateBox) || descriptionBox.bottom + 6 > stateBox.top) {
+              issues.push(`gate ${index + 1}: description intrudes into state`);
+            }
+            for (const [name, box] of [['ring', ringBox], ['heading', headingBox], ['description', descriptionBox], ['state', stateBox]]) {
+              if (box.left < gateBox.left - 2 || box.right > gateBox.right + 2 || box.top < gateBox.top - 2 || box.bottom > gateBox.bottom + 2) {
+                issues.push(`gate ${index + 1}: ${name} escapes gate bounds`);
+              }
+            }
+            return issues;
+          });
+
+        const componentLayoutIssues = [...document.querySelectorAll('.phase, .mechanism, .document-link, .brief-card, .worksheet-cell, .evidence-body')]
+          .filter(visible)
+          .flatMap((component, componentIndex) => {
+            const parentBox = rect(component);
+            const textChildren = [...component.querySelectorAll(':scope > h3, :scope > h4, :scope > p, :scope > ul, :scope > strong, :scope > span, :scope > .phase-days')]
+              .filter(visible)
+              .map((element) => ({ element, box: rect(element), text: element.textContent.trim().slice(0, 50) }))
+              .sort((a, b) => a.box.top - b.box.top || a.box.left - b.box.left);
+            const issues = [];
+
+            for (const child of textChildren) {
+              if (child.box.left < parentBox.left - 2 || child.box.right > parentBox.right + 2 || child.box.top < parentBox.top - 2 || child.box.bottom > parentBox.bottom + 2) {
+                issues.push(`${component.className || component.tagName} ${componentIndex + 1}: text escapes bounds (${child.text})`);
+              }
+            }
+            for (let index = 0; index < textChildren.length - 1; index += 1) {
+              const current = textChildren[index];
+              const next = textChildren[index + 1];
+              if (overlaps(current.box, next.box)) {
+                issues.push(`${component.className || component.tagName} ${componentIndex + 1}: text overlap (${current.text}) / (${next.text})`);
+              }
+            }
+            return issues;
+          });
+
+        const track = document.querySelector('.airlock-track');
+        const trackConnector = track ? getComputedStyle(track, '::before') : null;
+        const wrappedConnectorVisible = Boolean(
+          track &&
+          window.innerWidth <= 980 &&
+          trackConnector &&
+          trackConnector.display !== 'none' &&
+          Number.parseFloat(trackConnector.height) > 0
+        );
+
         return {
           title: document.title,
           overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -214,6 +289,9 @@ try {
           lowContrastControls: controls.filter((item) => item.contrast < 4.5),
           tinyControls: controls.filter((item) => item.fontSize < 12),
           tinySiteText: siteText.filter((item) => item.fontSize < 12),
+          gateLayoutIssues,
+          componentLayoutIssues,
+          wrappedConnectorVisible,
           buttonTexts: controls.map((item) => item.text),
           bodyTextLength: document.body.innerText.trim().length
         };
@@ -227,6 +305,9 @@ try {
       if (audit.lowContrastControls.length) findings.push(`${route} ${viewportName}: low-contrast controls ${JSON.stringify(audit.lowContrastControls)}`);
       if (audit.tinyControls.length) findings.push(`${route} ${viewportName}: controls below 12px ${JSON.stringify(audit.tinyControls)}`);
       if (route === 'index.html' && audit.tinySiteText.length) findings.push(`${route} ${viewportName}: essential site text below 12px ${JSON.stringify(audit.tinySiteText)}`);
+      if (route === 'index.html' && audit.gateLayoutIssues.length) findings.push(`${route} ${viewportName}: gate geometry ${JSON.stringify(audit.gateLayoutIssues)}`);
+      if (audit.componentLayoutIssues.length) findings.push(`${route} ${viewportName}: component geometry ${JSON.stringify(audit.componentLayoutIssues)}`);
+      if (route === 'index.html' && audit.wrappedConnectorVisible) findings.push(`${route} ${viewportName}: connector line remains visible after gate grid wraps`);
       if (route === 'index.html' && !audit.buttonTexts.includes('Run the readiness model')) findings.push(`${route} ${viewportName}: primary CTA label missing`);
 
       await page.screenshot({
@@ -237,6 +318,9 @@ try {
         await page.screenshot({
           path: path.join(root, 'qa', 'screens', `hero-${viewportName}.png`),
           fullPage: false
+        });
+        await page.locator('#airlock').screenshot({
+          path: path.join(root, 'qa', 'screens', `airlock-${viewportName}.png`)
         });
       }
       await page.close();
@@ -292,4 +376,4 @@ if (findings.length) {
   throw new Error(`Readability QA failed with ${findings.length} finding(s):\n${findings.join('\n')}`);
 }
 
-console.log('Rendered 5 PDFs and 33 screenshots; all seven routes passed readability, contrast, overflow, reduced-motion, and interaction checks.');
+console.log('Rendered 5 PDFs and 37 screenshots; all seven routes passed readability, contrast, geometry, overflow, reduced-motion, and interaction checks.');
