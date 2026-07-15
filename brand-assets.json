@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-07-15",
+  "campaignUse": "Independent candidate work; nominative employer identification and public-brand continuity only.",
+  "assets": [
+    {
+      "path": "assets/brand/nwn-careers-wordmark.png",
+      "source": "https://careers-carousel.icims.com/jobs/7335/operations-process-excellence-director/job",
+      "sourceType": "Employer-controlled careers page embedded branding asset",
+      "treatment": "Unmodified, locally committed, paired with independent-candidate language"
+    },
+    {
+      "path": "assets/brand/nwn-hero.jpg",
+      "source": "https://nwn.ai/wp-content/uploads/2025/06/NWN-25-131-Web-hero-no-text-1-1024x306.jpg",
+      "sourceType": "Official NWN public-site image",
+      "treatment": "Locally committed background image with campaign-owned navy gradient for legibility"
+    },
+    {
+      "path": "assets/brand/nwn-slant.svg",
+      "source": "https://nwn.ai/wp-content/uploads/2025/03/nwn_slant_tlbr.svg",
+      "sourceType": "Official NWN public-site visual motif",
+      "treatment": "Locally committed reference asset; not modified into a candidate logo"
+    }
+  ]
+}
