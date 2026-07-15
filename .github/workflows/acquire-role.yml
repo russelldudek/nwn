@@ -86,16 +86,18 @@ jobs:
           Path('role-jsonld.json').write_text(json.dumps(parsed, indent=2), encoding='utf-8')
           print(text[:12000])
           PY
-      - name: Persist normalized public role source
+      - name: Persist public role source for analysis
         run: |
           set -euo pipefail
           mkdir -p .role-source
-          cp role.txt role-title.txt role-jsonld.json .role-source/
+          cp role.html role.txt role-title.txt role-jsonld.json .role-source/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .role-source
-          git commit -m "chore: capture public role brief"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: refresh public role brief"
+            git push
+          fi
       - name: Upload public role source
         uses: actions/upload-artifact@v4
         with:
