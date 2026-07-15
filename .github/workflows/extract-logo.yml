@@ -1,0 +1,52 @@
+name: Extract current careers wordmark
+
+on:
+  push:
+    paths:
+      - .github/workflows/extract-logo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract employer-controlled careers asset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, json, re
+
+          raw = Path('.role-source/role.html').read_text(encoding='utf-8', errors='replace')
+          matches = re.findall(r"data:image/(png|jpeg|svg\+xml);base64,([A-Za-z0-9+/=]+)", raw)
+          if not matches:
+              raise SystemExit('No embedded image assets found')
+          decoded = []
+          for kind, payload in matches:
+              data = base64.b64decode(payload)
+              decoded.append((len(data), kind, data))
+          decoded.sort(reverse=True, key=lambda item: item[0])
+          size, kind, data = decoded[0]
+          ext = 'png' if kind == 'png' else 'jpg' if kind == 'jpeg' else 'svg'
+          out = Path(f'assets/brand/nwn-careers-wordmark.{ext}')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_bytes(data)
+          Path('assets/brand/nwn-careers-wordmark-provenance.json').write_text(json.dumps({
+              'sourceUrl': 'https://careers-carousel.icims.com/jobs/7335/operations-process-excellence-director/job',
+              'sourceType': 'employer-controlled careers page embedded branding asset',
+              'filename': out.name,
+              'bytes': size,
+              'capturedAt': '2026-07-15'
+          }, indent=2), encoding='utf-8')
+          print(out, size)
+          PY
+      - name: Persist brand asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/brand/nwn-careers-wordmark.* assets/brand/nwn-careers-wordmark-provenance.json
+          git commit -m "chore: add employer careers wordmark"
+          git push
