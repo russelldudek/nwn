@@ -1,0 +1,27 @@
+{
+  "required": [
+    "index.html",
+    "resume.html",
+    "cover-letter.html",
+    "interview-brief.html",
+    "120-day-plan.html",
+    "o2c-readiness-airlock.html",
+    "source-notes.html",
+    "styles.css",
+    "brand-tokens.css",
+    "app.js",
+    "brand-intelligence.md",
+    "brand-assets.json",
+    "README.md",
+    "assets/brand/nwn-careers-wordmark.png",
+    "assets/brand/nwn-hero.jpg",
+    "assets/brand/nwn-slant.svg"
+  ],
+  "pdfPageCounts": {
+    "docs/Russell-Dudek-NWN-Resume.pdf": 2,
+    "docs/Russell-Dudek-NWN-Cover-Letter.pdf": 1,
+    "docs/NWN-Interview-Thesis-Brief.pdf": 2,
+    "docs/NWN-120-Day-Entry-Plan.pdf": 2,
+    "docs/O2C-Readiness-Airlock-Worksheet.pdf": 1
+  }
+}
