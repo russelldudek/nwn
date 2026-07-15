@@ -10,7 +10,8 @@ TEXT_EXTS = {'.html', '.css', '.js', '.md', '.json', '.yml', '.yaml'}
 REQUIRED = [
     'index.html','resume.html','cover-letter.html','interview-brief.html','120-day-plan.html',
     'o2c-readiness-airlock.html','source-notes.html','styles.css','brand-tokens.css','app.js',
-    'styles/readability-repair.css','brand-intelligence.md','brand-assets.json','README.md',
+    'styles/readability-repair.css','styles/readability-audit-fixes.css',
+    'brand-intelligence.md','brand-assets.json','README.md',
     'assets/brand/nwn-careers-wordmark.png','assets/brand/nwn-hero.jpg','assets/brand/nwn-slant.svg'
 ]
 PDF_COUNTS = {
@@ -45,10 +46,13 @@ def source_checks() -> None:
         path.read_text(encoding='utf-8')
         for path in sorted((ROOT / 'fragments').glob('index-*.js'))
     )
-    repair = (ROOT / 'styles/readability-repair.css').read_text(encoding='utf-8')
+    readability_css = '\n'.join([
+        (ROOT / 'styles/readability-repair.css').read_text(encoding='utf-8'),
+        (ROOT / 'styles/readability-audit-fixes.css').read_text(encoding='utf-8'),
+    ])
 
     for needle in ['id="airlock"', 'data-scenario="managed"', 'Reset to baseline', 'prefers-reduced-motion']:
-        if needle not in (index + styles + fragments + repair):
+        if needle not in (index + styles + fragments + readability_css):
             fail(f'missing interaction/accessibility evidence: {needle}')
 
     for obsolete in ['class="offer-capsule"', 'class="airlock-hero"', 'Animated Opportunity-to-Cash readiness airlock']:
@@ -63,15 +67,13 @@ def source_checks() -> None:
         if needle not in fragments:
             fail(f'missing six-gate hero evidence: {needle}')
 
-    if not styles.rstrip().endswith('@import url("styles/readability-repair.css");'):
-        fail('readability repair stylesheet must be imported last')
+    if not styles.rstrip().endswith('@import url("styles/readability-audit-fixes.css");'):
+        fail('final readability-floor stylesheet must be imported last')
 
     css_needles = [
         'border-radius: 10px', '#001455 !important', '@media (prefers-reduced-motion: reduce)',
-        '.scan-gate', '.scan-outcome', 'animation-iteration-count'
+        '.scan-gate', '.scan-outcome', 'animation-iteration-count', 'font-size: .75rem'
     ]
-    # animation-iteration-count is supplied by the existing reduced-motion stylesheet;
-    # the combined source must retain it while the repair adds its own completed state.
     combined_css = '\n'.join(
         path.read_text(encoding='utf-8')
         for path in sorted((ROOT / 'styles').glob('*.css'))
