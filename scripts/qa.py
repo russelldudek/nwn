@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT_EXTS = {'.html', '.css', '.js', '.md', '.json', '.yml', '.yaml'}
+SCAN_EXCLUDED_DIRS = {'.git', 'node_modules', 'qa', '.worktrees'}
 REQUIRED = [
     'index.html','resume.html','cover-letter.html','interview-brief.html','120-day-plan.html',
     'o2c-readiness-airlock.html','source-notes.html','styles.css','brand-tokens.css','app.js',
@@ -34,11 +35,14 @@ def source_checks() -> None:
         fail(f'missing required files: {missing}')
 
     for path in ROOT.rglob('*'):
+        relative = path.relative_to(ROOT)
+        if any(part in SCAN_EXCLUDED_DIRS for part in relative.parts):
+            continue
         if path.is_file() and path.suffix.lower() in TEXT_EXTS:
             text = path.read_text(encoding='utf-8', errors='replace')
             for pattern in FORBIDDEN:
                 if re.search(pattern, text, re.I):
-                    fail(f'confidential/internal term {pattern!r} in {path.relative_to(ROOT)}')
+                    fail(f'confidential/internal term {pattern!r} in {relative}')
 
     index = (ROOT / 'index.html').read_text(encoding='utf-8')
     styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
