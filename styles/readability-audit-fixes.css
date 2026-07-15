@@ -18,6 +18,28 @@
   font-size: .78rem;
 }
 
+.hero .button.secondary {
+  background-color: #001455 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, .86) !important;
+}
+
+.hero .button.secondary:hover,
+.hero .button.secondary:focus-visible {
+  background-color: #002855 !important;
+  color: #ffffff !important;
+}
+
+.document-link {
+  color: #001455;
+}
+
+.document-link:hover,
+.document-link:focus-visible {
+  border-color: #4c8dff;
+  background: #f7faff;
+}
+
 .download-bar .button.dark {
   background-color: #001455 !important;
   color: #ffffff !important;
@@ -28,6 +50,19 @@
 .download-bar .button.dark:focus-visible {
   background-color: #002855 !important;
   color: #ffffff !important;
+}
+
+.source-card a,
+.inline-link,
+.letter-body .inline-link {
+  color: #174f9e;
+}
+
+.source-card a:hover,
+.source-card a:focus-visible,
+.inline-link:hover,
+.inline-link:focus-visible {
+  color: #001455;
 }
 
 @media screen {
@@ -62,6 +97,7 @@
 
   .paper {
     width: 100%;
+    max-width: 100%;
     min-height: auto;
     box-shadow: none;
   }
@@ -73,6 +109,14 @@
 }
 
 @media screen and (max-width: 620px) {
+  html,
+  body,
+  .document-page,
+  .doc-shell,
+  .paper {
+    max-width: 100%;
+  }
+
   .kpi-table {
     width: 100%;
     max-width: 100%;
@@ -96,5 +140,17 @@
 
   .download-bar .button {
     flex: 1 1 150px;
+  }
+
+  .mini-airlock {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mini-gate {
+    min-height: 48px;
+    padding: 8px;
+    font-size: .7rem;
+    line-height: 1.3;
   }
 }
