@@ -1,0 +1,14 @@
+{
+  "name": "nwn-candidate-vision",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "render": "node scripts/render.mjs",
+    "qa:source": "python3 scripts/qa.py --source",
+    "qa:all": "python3 scripts/qa.py --all"
+  },
+  "devDependencies": {
+    "playwright": "1.53.2"
+  }
+}
