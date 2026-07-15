@@ -1,0 +1,15 @@
+/* Final readability-floor corrections discovered by the route audit. */
+.scan-gate span,
+.scan-gate small,
+.readiness-status span,
+.gate-state {
+  font-size: .75rem;
+}
+
+.scan-outcome small {
+  font-size: .78rem;
+}
+
+.transfer-tag {
+  font-size: .78rem;
+}
