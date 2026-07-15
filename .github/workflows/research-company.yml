@@ -1,0 +1,128 @@
+name: Capture current public company intelligence
+
+on:
+  push:
+    paths:
+      - .github/workflows/research-company.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser
+        run: |
+          npm init -y
+          npm install playwright@1.53.2
+          npx playwright install --with-deps chromium
+      - name: Capture official sources and brand evidence
+        run: |
+          cat > research.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+          const page = await context.newPage();
+          const seed = 'https://www.nwn.ai/';
+          await page.goto(seed, { waitUntil: 'domcontentloaded', timeout: 120000 });
+          await page.waitForTimeout(7000);
+
+          const homeUrl = page.url();
+          const links = await page.locator('a[href]').evaluateAll((nodes) => nodes.map((a) => ({
+            text: (a.textContent || '').trim().replace(/\s+/g, ' '),
+            href: a.href
+          })));
+
+          const officialLinks = [...new Map(links.filter((l) => l.href.startsWith(new URL(homeUrl).origin)).map((l) => [l.href, l])).values()];
+          const priority = officialLinks.filter((l) => /about|company|leadership|news|press|solution|platform|experience|career/i.test(`${l.text} ${l.href}`));
+          const selected = [homeUrl, ...priority.map((l) => l.href)].filter((v, i, a) => a.indexOf(v) === i).slice(0, 12);
+
+          fs.mkdirSync('.company-source/pages', { recursive: true });
+          fs.mkdirSync('.company-source/screens', { recursive: true });
+          fs.mkdirSync('assets/brand', { recursive: true });
+
+          const records = [];
+          const candidates = new Map();
+          let pageIndex = 0;
+          for (const url of selected) {
+            const p = pageIndex === 0 ? page : await context.newPage();
+            try {
+              await p.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
+              await p.waitForTimeout(3500);
+              const slug = String(pageIndex + 1).padStart(2, '0');
+              const title = await p.title();
+              const description = await p.locator('meta[name="description"]').getAttribute('content').catch(() => null);
+              const text = await p.locator('body').innerText().catch(() => '');
+              const images = await p.locator('img').evaluateAll((nodes) => nodes.map((img) => ({
+                src: img.currentSrc || img.src,
+                alt: img.alt || '',
+                width: img.naturalWidth,
+                height: img.naturalHeight
+              })));
+              const stylesheets = await p.locator('link[rel="stylesheet"]').evaluateAll((nodes) => nodes.map((n) => n.href));
+              const computed = await p.evaluate(() => {
+                const styleOf = (selector) => {
+                  const el = document.querySelector(selector);
+                  if (!el) return null;
+                  const s = getComputedStyle(el);
+                  return { fontFamily: s.fontFamily, fontSize: s.fontSize, fontWeight: s.fontWeight, color: s.color, backgroundColor: s.backgroundColor };
+                };
+                return { body: styleOf('body'), h1: styleOf('h1'), h2: styleOf('h2'), button: styleOf('button, .button, [class*="btn"]'), nav: styleOf('nav') };
+              });
+              const html = await p.content();
+              fs.writeFileSync(`.company-source/pages/${slug}.txt`, `URL: ${p.url()}\nTITLE: ${title}\nDESCRIPTION: ${description || ''}\n\n${text}\n`);
+              fs.writeFileSync(`.company-source/pages/${slug}.html`, html);
+              await p.screenshot({ path: `.company-source/screens/${slug}.png`, fullPage: true });
+              records.push({ requestedUrl: url, finalUrl: p.url(), title, description, images, stylesheets, computed });
+              for (const image of images) {
+                if (!image.src) continue;
+                const scoreText = `${image.src} ${image.alt}`;
+                if (/logo|wordmark|brand|nwn/i.test(scoreText)) candidates.set(image.src, image);
+              }
+            } catch (error) {
+              records.push({ requestedUrl: url, error: error.message });
+            } finally {
+              if (p !== page) await p.close();
+            }
+            pageIndex += 1;
+          }
+
+          let assetIndex = 0;
+          const assets = [];
+          for (const [url, meta] of candidates) {
+            if (assetIndex >= 12) break;
+            try {
+              const response = await context.request.get(url, { timeout: 60000 });
+              if (!response.ok()) continue;
+              const contentType = response.headers()['content-type'] || '';
+              const ext = contentType.includes('svg') ? 'svg' : contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : contentType.includes('jpeg') ? 'jpg' : path.extname(new URL(url).pathname).replace('.', '') || 'bin';
+              const filename = `official-source-${String(assetIndex + 1).padStart(2, '0')}.${ext}`;
+              fs.writeFileSync(`assets/brand/${filename}`, await response.body());
+              assets.push({ filename, sourceUrl: url, contentType, ...meta });
+              assetIndex += 1;
+            } catch (error) {
+              assets.push({ sourceUrl: url, error: error.message, ...meta });
+            }
+          }
+
+          fs.writeFileSync('.company-source/company-intelligence.json', JSON.stringify({ capturedAt: new Date().toISOString(), homeUrl, selected, records, assets }, null, 2));
+          fs.writeFileSync('assets/brand/provenance.json', JSON.stringify({ capturedAt: new Date().toISOString(), homeUrl, assets }, null, 2));
+          await browser.close();
+          JS
+          node research.mjs
+      - name: Persist official public research
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .company-source assets/brand
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: capture current public company intelligence"
+            git push
+          fi
