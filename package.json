@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "render": "node scripts/render.mjs",
+    "render": "node scripts/render.mjs && node scripts/mobile-layout-audit.mjs",
     "qa:source": "python3 scripts/qa.py --source",
     "qa:all": "python3 scripts/qa.py --all"
   },
