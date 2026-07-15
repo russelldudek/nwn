@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-@import url('./brand-tokens.css');
+@import url('../brand-tokens.css');
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -41,7 +41,7 @@ button { cursor: pointer; }
   min-height: 760px; position: relative; overflow: hidden; color: white;
   background:
     linear-gradient(110deg, rgba(0,20,85,.98) 0%, rgba(0,40,85,.94) 53%, rgba(0,20,85,.68) 100%),
-    url('./assets/brand/nwn-hero.jpg') center/cover no-repeat;
+    url('../assets/brand/nwn-hero.jpg') center/cover no-repeat;
 }
 .hero::after {
   content: ''; position: absolute; inset: auto -18vw -35vw 35vw; height: 70vw;
