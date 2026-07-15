@@ -1,0 +1,40 @@
+.artifact-controls h3 { font-size:1.35rem; }
+.artifact-controls p { font-size:.84rem; color:var(--muted); }
+.scenario-list { display:grid; gap:8px; margin:22px 0; }
+.scenario-button { text-align:left; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:white; color:var(--nwn-navy); font-size:.82rem; font-weight:600; }
+.scenario-button[aria-pressed="true"] { background:var(--nwn-navy); color:white; border-color:var(--nwn-navy); }
+.reset-button { width:100%; border:0; background:var(--nwn-mist); color:var(--nwn-navy); border-radius:10px; padding:10px; font-weight:700; }
+.assumption-note { margin-top:18px; font-size:.7rem !important; }
+
+.airlock-board { position:relative; overflow:hidden; background:linear-gradient(145deg,#001455 0%,#082d68 70%,#11447f 100%); border-radius:var(--radius-lg); min-height:600px; padding:38px; color:white; box-shadow:var(--shadow); }
+.airlock-board::before { content:''; position:absolute; inset:0; background:linear-gradient(120deg,transparent 0 44%,rgba(255,255,255,.04) 45% 55%,transparent 56%); pointer-events:none; }
+.airlock-header { display:flex; justify-content:space-between; gap:20px; align-items:start; position:relative; z-index:2; }
+.airlock-header h3 { color:white; font-size:1.55rem; margin-bottom:4px; }
+.airlock-header p { margin:0; color:rgba(255,255,255,.68); font-size:.8rem; max-width:510px; }
+.readiness-status { text-align:right; min-width:160px; }
+.readiness-status span { display:block; font-size:.66rem; text-transform:uppercase; letter-spacing:.15em; color:rgba(255,255,255,.55); }
+.readiness-status strong { display:block; margin-top:4px; font-family:Archivo,sans-serif; font-size:1.3rem; color:var(--ready); }
+.airlock-track { position:relative; margin-top:48px; display:grid; grid-template-columns:repeat(6,1fr); gap:10px; z-index:2; }
+.airlock-track::before { content:''; position:absolute; left:4%; right:4%; top:50%; height:2px; background:rgba(255,255,255,.16); }
+.gate { position:relative; min-height:330px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; text-align:center; padding:20px 10px; }
+.gate-ring { width:104px; height:104px; border-radius:50%; border:7px solid rgba(255,255,255,.18); display:grid; place-items:center; background:rgba(0,20,85,.5); transition:border-color .35s ease,transform .35s ease,box-shadow .35s ease; position:absolute; top:40px; }
+.gate-ring::after { content:''; width:58px; height:58px; border-radius:50%; border:1px dashed rgba(255,255,255,.35); }
+.gate[data-state="ready"] .gate-ring { border-color:var(--ready); box-shadow:0 0 26px rgba(39,181,155,.35); }
+.gate[data-state="watch"] .gate-ring { border-color:var(--watch); box-shadow:0 0 26px rgba(244,174,61,.3); }
+.gate[data-state="hold"] .gate-ring { border-color:var(--hold); box-shadow:0 0 26px rgba(217,91,103,.3); }
+.gate:hover .gate-ring, .gate:focus-within .gate-ring { transform:scale(1.05); }
+.gate h4 { margin:0 0 6px; font-family:Archivo,sans-serif; color:white; font-size:.95rem; }
+.gate p { margin:0; color:rgba(255,255,255,.64); font-size:.68rem; line-height:1.45; }
+.gate-state { margin-top:10px; font-size:.62rem; text-transform:uppercase; letter-spacing:.11em; font-weight:700; color:var(--ready); }
+.gate[data-state="watch"] .gate-state { color:var(--watch); }
+.gate[data-state="hold"] .gate-state { color:var(--hold); }
+.airlock-output { position:relative; z-index:2; margin-top:18px; padding:18px 20px; border:1px solid rgba(255,255,255,.17); border-radius:14px; display:grid; grid-template-columns:150px 1fr; gap:18px; background:rgba(0,20,85,.35); }
+.airlock-output strong { font-family:Archivo,sans-serif; color:white; }
+.airlock-output p { margin:0; font-size:.8rem; color:rgba(255,255,255,.72); }
+
+.ope-system { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; background:white; }
+.mechanism { padding:34px 26px; border-right:1px solid var(--line); }
+.mechanism:last-child { border-right:0; }
+.mechanism-index { font-family:Archivo,sans-serif; font-size:2.6rem; color:rgba(0,20,85,.13); }
+.mechanism h3 { font-size:1.25rem; margin-bottom:12px; }
+.mechanism p { color:var(--muted); font-size:.85rem; margin:0; }

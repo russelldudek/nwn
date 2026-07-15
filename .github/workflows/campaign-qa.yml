@@ -1,0 +1,36 @@
+name: Campaign QA
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - run: pip install PyMuPDF
+      - run: npm run qa:source
+      - run: npm run render
+      - run: npm run qa:all
+      - name: Upload print and render evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: campaign-qa
+          path: |
+            docs/*.pdf
+            qa/screens/*.png
+            artifact-manifest.json
+          retention-days: 7

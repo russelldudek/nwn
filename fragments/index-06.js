@@ -1,0 +1,1 @@
+window.__nwnChunks.push("<footer class=\"site-footer\"><div class=\"footer-inner\"><span>Independent candidate work by Russell Dudek \u00b7 Not affiliated with or endorsed by NWN.</span><span><a href=\"mailto:russelldudek@gmail.com\">russelldudek@gmail.com</a> \u00b7 <a href=\"tel:+14122878640\">412.287.8640</a></span></div></footer>\n");

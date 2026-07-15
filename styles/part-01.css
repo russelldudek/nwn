@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('./brand-tokens.css');
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--page);
+  font-family: Poppins, Helvetica, Arial, sans-serif;
+  line-height: 1.58;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+button, select { font: inherit; }
+button { cursor: pointer; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 1000; padding: .7rem 1rem; background: white; color: var(--nwn-navy); transform: translateY(-150%); border-radius: 8px; }
+.skip-link:focus { transform: translateY(0); }
+
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+.nav {
+  width: min(var(--max), calc(100% - 40px)); margin: auto; min-height: 78px;
+  display: flex; align-items: center; justify-content: space-between; gap: 28px;
+}
+.identity { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.identity img { width: 90px; height: 50px; object-fit: contain; object-position: left center; }
+.identity-copy { border-left: 1px solid var(--line); padding-left: 14px; font-size: .72rem; line-height: 1.35; color: var(--muted); }
+.identity-copy strong { display: block; color: var(--nwn-navy); font-size: .82rem; }
+.nav-links { display: flex; align-items: center; gap: 20px; font-size: .84rem; }
+.nav-links a { text-decoration: none; color: var(--nwn-navy); font-weight: 600; }
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--candidate-blue); }
+.nav-cta { padding: .68rem .95rem; border: 1px solid var(--nwn-navy); border-radius: 999px; }
+.menu-button { display: none; border: 0; background: none; color: var(--nwn-navy); font-weight: 700; }
+
+.hero {
+  min-height: 760px; position: relative; overflow: hidden; color: white;
+  background:
+    linear-gradient(110deg, rgba(0,20,85,.98) 0%, rgba(0,40,85,.94) 53%, rgba(0,20,85,.68) 100%),
+    url('./assets/brand/nwn-hero.jpg') center/cover no-repeat;
+}
+.hero::after {
+  content: ''; position: absolute; inset: auto -18vw -35vw 35vw; height: 70vw;
+  background: radial-gradient(circle, rgba(76,141,255,.22), transparent 60%); pointer-events: none;
+}
+.hero-inner {
+  width: min(var(--max), calc(100% - 40px)); margin: auto; padding: 88px 0 84px;
+  display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(420px, .96fr); gap: 64px; align-items: center;
+  position: relative; z-index: 2;
+}
+.candidate-label { font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.72); margin-bottom: 22px; }
+h1,h2,h3 { font-family: Archivo, Helvetica, Arial, sans-serif; margin-top: 0; color: var(--nwn-navy); }
+h1 { font-size: clamp(3.3rem, 6.5vw, 6rem); line-height: .98; letter-spacing: -.055em; font-weight: 200; color: white; margin-bottom: 28px; }
+.hero h1 strong { font-weight: 700; }
+.hero-lede { max-width: 700px; font-size: 1.12rem; color: rgba(255,255,255,.84); margin-bottom: 34px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: .74rem 1.08rem; border: 1px solid transparent; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: .88rem; }
+.button.primary { background: white; color: var(--nwn-navy); }
+.button.secondary { border-color: rgba(255,255,255,.54); color: white; }
+.button.dark { background: var(--nwn-navy); color: white; }
+.button.ghost { border-color: var(--line); color: var(--nwn-navy); background: white; }
+.button:hover, .button:focus-visible { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,.15); }
+
+.airlock-hero { position: relative; min-height: 520px; display: grid; place-items: center; }
+.airlock-orbit { position: absolute; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; animation: orbit 22s linear infinite; }
+.airlock-orbit.one { width: 470px; height: 470px; }
+.airlock-orbit.two { width: 360px; height: 360px; animation-direction: reverse; animation-duration: 16s; }

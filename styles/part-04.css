@@ -1,0 +1,53 @@
+.kpi-table { width:100%; border-collapse:collapse; background:white; border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow); }
+.kpi-table th, .kpi-table td { padding:18px 20px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+.kpi-table th { background:var(--nwn-navy); color:white; font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; }
+.kpi-table td:first-child { font-family:Archivo,sans-serif; color:var(--nwn-navy); font-weight:700; width:22%; }
+.kpi-table td { font-size:.84rem; color:var(--muted); }
+
+.evidence-rail { display:grid; grid-template-columns:170px 1fr; gap:0; }
+.evidence-year { font-family:Archivo,sans-serif; color:rgba(255,255,255,.48); font-size:1.1rem; padding:28px 20px 28px 0; border-bottom:1px solid rgba(255,255,255,.14); }
+.evidence-body { padding:28px 0 28px 32px; border-left:1px solid rgba(255,255,255,.2); border-bottom:1px solid rgba(255,255,255,.14); position:relative; }
+.evidence-body::before { content:''; position:absolute; left:-6px; top:34px; width:11px; height:11px; border-radius:50%; background:var(--candidate-blue); }
+.evidence-body h3 { margin:0 0 8px; color:white; font-size:1.25rem; }
+.evidence-body p { color:rgba(255,255,255,.7); margin:0; font-size:.88rem; }
+.transfer-tag { margin-top:12px; display:inline-block; font-size:.66rem; color:white; border:1px solid rgba(255,255,255,.25); padding:5px 8px; border-radius:999px; }
+
+.objection-layout { display:grid; grid-template-columns:.82fr 1.18fr; gap:56px; align-items:start; }
+.objection-title { font-family:Archivo,sans-serif; font-size:clamp(2.2rem,4vw,3.8rem); line-height:1; color:var(--nwn-navy); }
+.objection-answer { border-left:1px solid var(--line); padding-left:38px; }
+.objection-answer h3 { font-size:1.35rem; }
+.objection-answer p { color:var(--muted); }
+.boundary { margin-top:24px; padding:18px 20px; background:var(--nwn-mist); border-radius:12px; font-size:.78rem; color:var(--nwn-navy); }
+
+.plan-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.phase { min-height:330px; border-top:5px solid var(--candidate-blue); background:white; padding:26px 22px; box-shadow:0 14px 40px rgba(0,20,85,.07); }
+.phase:nth-child(2) { border-color:var(--ready); }
+.phase:nth-child(3) { border-color:var(--watch); }
+.phase:nth-child(4) { border-color:var(--nwn-navy); }
+.phase-days { font-size:.68rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
+.phase h3 { margin:10px 0 14px; font-size:1.25rem; }
+.phase ul { padding-left:18px; margin:0; color:var(--muted); font-size:.8rem; }
+.phase li + li { margin-top:8px; }
+
+.questions { counter-reset:q; max-width:980px; }
+.question { counter-increment:q; display:grid; grid-template-columns:56px 1fr; gap:18px; padding:22px 0; border-bottom:1px solid var(--line); }
+.question::before { content:counter(q, decimal-leading-zero); font-family:Archivo,sans-serif; font-weight:700; color:var(--candidate-blue); }
+.question strong { display:block; color:var(--nwn-navy); margin-bottom:5px; }
+.question span { color:var(--muted); font-size:.84rem; }
+
+.document-band { display:grid; grid-template-columns:1fr 1.2fr; gap:56px; align-items:center; }
+.document-links { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.document-link { padding:18px; background:white; border:1px solid var(--line); border-radius:12px; text-decoration:none; }
+.document-link strong { display:block; color:var(--nwn-navy); }
+.document-link span { color:var(--muted); font-size:.72rem; }
+
+.site-footer { padding:42px 0; background:#06112d; color:rgba(255,255,255,.65); }
+.footer-inner { width:min(var(--max),calc(100% - 40px)); margin:auto; display:flex; justify-content:space-between; gap:24px; font-size:.72rem; }
+.footer-inner a { color:white; }
+
+/* Document surfaces */
+.document-page { background:#dfe5ec; padding:34px 0; }
+.doc-shell { width:8.5in; margin:0 auto; }
+.paper { width:8.5in; min-height:11in; background:white; padding:.52in .56in .48in; position:relative; box-shadow:0 14px 44px rgba(0,20,85,.16); overflow:hidden; page-break-after:always; }
+.paper:last-child { page-break-after:auto; }
+.doc-header { display:grid; grid-template-columns:90px 1fr auto; gap:16px; align-items:center; border-bottom:2px solid var(--nwn-navy); padding-bottom:14px; margin-bottom:18px; }

@@ -1,0 +1,25 @@
+:root {
+  /* Official/source-sampled from NWN public site computed styles, captured 2026-07-15. */
+  --nwn-navy: #001455;
+  --nwn-deep: #002855;
+  --nwn-white: #ffffff;
+  --nwn-ink: #07142f;
+  --nwn-mist: #eef4fa;
+
+  /* Candidate-original colors used only to explain readiness state. */
+  --ready: #27b59b;
+  --watch: #f4ae3d;
+  --hold: #d95b67;
+  --candidate-blue: #4c8dff;
+
+  --page: #f6f8fb;
+  --surface: #ffffff;
+  --text: #101a33;
+  --muted: #5e6b82;
+  --line: rgba(0, 20, 85, 0.16);
+  --shadow: 0 24px 70px rgba(0, 20, 85, 0.12);
+  --radius-sm: 10px;
+  --radius-md: 20px;
+  --radius-lg: 34px;
+  --max: 1180px;
+}
