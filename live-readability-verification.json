@@ -1,0 +1,11 @@
+{
+  "url": "https://russelldudek.github.io/nwn/",
+  "httpStatus": 200,
+  "primaryCtaFound": true,
+  "sixGateScanFound": true,
+  "rejectedCapsuleAbsent": true,
+  "readabilityStylesFound": true,
+  "pdfEndpointsVerified": 5,
+  "verifiedAt": "2026-07-15T16:07:41.365262+00:00",
+  "sourceCommit": "ffe8d28f8dabfdb35bfdef6c8527ea0d410eb4b9"
+}
