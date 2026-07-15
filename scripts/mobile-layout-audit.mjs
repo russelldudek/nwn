@@ -62,7 +62,10 @@ try {
     const tableRect = table.getBoundingClientRect();
     const rowChecks = rows.map((row, rowIndex) => {
       const cells = [...row.querySelectorAll('td')];
+      const rowStyle = getComputedStyle(row);
       const rowRect = row.getBoundingClientRect();
+      const horizontalPadding = Number.parseFloat(rowStyle.paddingLeft) + Number.parseFloat(rowStyle.paddingRight);
+      const contentWidth = rowRect.width - horizontalPadding;
       const cellChecks = cells.map((cell, cellIndex) => {
         const style = getComputedStyle(cell);
         const rect = cell.getBoundingClientRect();
@@ -71,12 +74,12 @@ try {
           cell: cellIndex + 1,
           display: style.display,
           width: rect.width,
-          rowWidth: rowRect.width,
+          contentWidth,
           beforeContent: before.content,
           text: cell.textContent.trim().slice(0, 70)
         };
       });
-      return { row: rowIndex + 1, display: getComputedStyle(row).display, width: rowRect.width, cellChecks };
+      return { row: rowIndex + 1, display: rowStyle.display, width: rowRect.width, contentWidth, cellChecks };
     });
 
     return {
@@ -100,13 +103,14 @@ try {
       if (row.display !== 'block') findings.push(`KPI row ${row.row} is ${row.display}, expected block.`);
       for (const cell of row.cellChecks) {
         if (cell.display !== 'block') findings.push(`KPI row ${row.row} cell ${cell.cell} is ${cell.display}, expected block.`);
-        if (cell.width < row.width * 0.92) findings.push(`KPI row ${row.row} cell ${cell.cell} is not full width.`);
+        if (cell.width < cell.contentWidth * 0.98) findings.push(`KPI row ${row.row} cell ${cell.cell} is not full content width.`);
         if (cell.cell === 2 && !cell.beforeContent.includes('What it reveals')) findings.push(`KPI row ${row.row} lacks the “What it reveals” label.`);
         if (cell.cell === 3 && !cell.beforeContent.includes('Decision it should trigger')) findings.push(`KPI row ${row.row} lacks the decision label.`);
       }
     }
   }
 
+  await page.addStyleTag({ content: '.site-header,.skip-link{display:none!important}' });
   await page.locator('.kpi-table').screenshot({ path: path.join(screens, 'kpi-mobile-390x844.png') });
 } finally {
   await page.close();
