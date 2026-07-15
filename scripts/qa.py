@@ -12,6 +12,7 @@ REQUIRED = [
     'index.html','resume.html','cover-letter.html','interview-brief.html','120-day-plan.html',
     'o2c-readiness-airlock.html','source-notes.html','styles.css','brand-tokens.css','app.js',
     'styles/readability-repair.css','styles/readability-audit-fixes.css',
+    'scripts/render.mjs','scripts/mobile-layout-audit.mjs',
     'brand-intelligence.md','brand-assets.json','README.md',
     'assets/brand/nwn-careers-wordmark.png','assets/brand/nwn-hero.jpg','assets/brand/nwn-slant.svg'
 ]
@@ -54,6 +55,8 @@ def source_checks() -> None:
         (ROOT / 'styles/readability-repair.css').read_text(encoding='utf-8'),
         (ROOT / 'styles/readability-audit-fixes.css').read_text(encoding='utf-8'),
     ])
+    render_source = (ROOT / 'scripts/render.mjs').read_text(encoding='utf-8')
+    mobile_audit_source = (ROOT / 'scripts/mobile-layout-audit.mjs').read_text(encoding='utf-8')
 
     for needle in ['id="airlock"', 'data-scenario="managed"', 'Reset to baseline', 'prefers-reduced-motion']:
         if needle not in (index + styles + fragments + readability_css):
@@ -76,7 +79,9 @@ def source_checks() -> None:
 
     css_needles = [
         'border-radius: 10px', '#001455 !important', '@media (prefers-reduced-motion: reduce)',
-        '.scan-gate', '.scan-outcome', 'animation-iteration-count', 'font-size: .75rem'
+        '.scan-gate', '.scan-outcome', 'animation-iteration-count', 'font-size: .75rem',
+        '.gate {', 'grid-template-rows: 116px auto auto auto',
+        '.kpi-table thead', "content: 'What it reveals'", "content: 'Decision it should trigger'"
     ]
     combined_css = '\n'.join(
         path.read_text(encoding='utf-8')
@@ -86,12 +91,21 @@ def source_checks() -> None:
         if needle not in combined_css:
             fail(f'missing readability/motion safeguard: {needle}')
 
+    audit_needles = [
+        'gateLayoutIssues', 'componentLayoutIssues', 'wrappedConnectorVisible',
+        'Mobile KPI table passed full-width stacked-row geometry and label checks.'
+    ]
+    audit_source = render_source + '\n' + mobile_audit_source
+    for needle in audit_needles:
+        if needle not in audit_source:
+            fail(f'missing rendered geometry regression: {needle}')
+
     for html in ['resume.html','cover-letter.html','interview-brief.html','120-day-plan.html','o2c-readiness-airlock.html']:
         text = (ROOT / html).read_text(encoding='utf-8')
         if 'docs/' not in text or 'download' not in text:
             fail(f'{html} does not link its PDF')
 
-    print('Source QA: pill/orbit removal, six-gate scan, readability safeguards, and links passed')
+    print('Source QA: hero, gate geometry, stacked mobile KPI, readability safeguards, and links passed')
 
 
 def pdf_checks() -> None:
