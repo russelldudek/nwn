@@ -29,14 +29,14 @@ window.__nwnChunks.push(`
 <a class="button secondary" href="interview-brief.html">Open the interview thesis</a>
 </div>
 </div>
-<div class="readiness-scan" role="img" aria-label="A new managed-service offer advances through six readiness gates and resolves to Ready with controls.">
+<div class="readiness-scan" role="img" aria-label="A new managed-service offer advances through Commercial definition, Margin logic, Transaction path, Finance treatment, System configuration, and Operating adoption, then resolves to Ready with controls.">
 <div class="scan-heading"><span>Pre-transaction readiness scan</span><strong>New managed service</strong></div>
 <div class="scan-flow">
 <div class="scan-offer"><span>Offer entering review</span><strong>New managed service</strong></div>
 <div class="scan-gates" aria-hidden="true">
-<div class="scan-gate ready" style="--step:1"><span>01</span><strong>Commercial</strong><small>Ready</small></div>
+<div class="scan-gate ready" style="--step:1"><span>01</span><strong>Offer</strong><small>Ready</small></div>
 <div class="scan-gate ready" style="--step:2"><span>02</span><strong>Margin</strong><small>Ready</small></div>
-<div class="scan-gate watch" style="--step:3"><span>03</span><strong>Transaction</strong><small>Control</small></div>
+<div class="scan-gate watch" style="--step:3"><span>03</span><strong>Order path</strong><small>Control</small></div>
 <div class="scan-gate ready" style="--step:4"><span>04</span><strong>Finance</strong><small>Ready</small></div>
 <div class="scan-gate ready" style="--step:5"><span>05</span><strong>Systems</strong><small>Ready</small></div>
 <div class="scan-gate watch" style="--step:6"><span>06</span><strong>Adoption</strong><small>Control</small></div>
