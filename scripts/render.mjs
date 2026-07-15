@@ -95,6 +95,9 @@ for (const [viewportName, width, height] of viewports) {
           if (color && color.a >= 0.96) return color;
           current = current.parentElement;
         }
+        if (element.closest('.hero, .section.navy, .section.blue, .airlock-board, .site-footer')) {
+          return { r: 0, g: 20, b: 85, a: 1 };
+        }
         return { r: 255, g: 255, b: 255, a: 1 };
       };
 
@@ -113,7 +116,7 @@ for (const [viewportName, width, height] of viewports) {
           };
         });
 
-      const siteText = [...document.querySelectorAll('p, li, .section-number, .gate-state, .readiness-status span, .document-link span, .transfer-tag, .footer-inner')]
+      const siteText = [...document.querySelectorAll('p, li, .candidate-label, .section-number, .readiness-scan span, .readiness-scan small, .gate-state, .readiness-status span, .document-link span, .transfer-tag, .footer-inner')]
         .filter(visible)
         .filter((element) => !element.closest('.paper'))
         .map((element) => ({
