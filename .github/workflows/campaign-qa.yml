@@ -32,5 +32,6 @@ jobs:
           path: |
             docs/*.pdf
             qa/screens/*.png
+            qa/readability-findings.json
             artifact-manifest.json
           retention-days: 7
