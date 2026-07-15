@@ -1,4 +1,4 @@
-/* Final readability-floor corrections discovered by the route audit. */
+/* Final readability-floor corrections discovered by the rendered route audit. */
 .scan-gate span,
 .scan-gate small,
 .readiness-status span,
@@ -6,10 +6,95 @@
   font-size: .75rem;
 }
 
-.scan-outcome small {
+.scan-gate strong {
+  font-size: .78rem;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.scan-outcome small,
+.transfer-tag {
   font-size: .78rem;
 }
 
-.transfer-tag {
-  font-size: .78rem;
+.download-bar .button.dark {
+  background-color: #001455 !important;
+  color: #ffffff !important;
+  border-color: #001455 !important;
+}
+
+.download-bar .button.dark:hover,
+.download-bar .button.dark:focus-visible {
+  background-color: #002855 !important;
+  color: #ffffff !important;
+}
+
+@media screen {
+  .doc-contact,
+  .doc-contact a,
+  .doc-footer,
+  .doc-footer a {
+    font-size: .75rem;
+  }
+
+  .inline-link {
+    font-size: .78rem;
+  }
+}
+
+@media screen and (max-width: 840px) {
+  .document-page {
+    padding: 16px 0 0;
+    overflow-x: hidden;
+  }
+
+  .doc-shell,
+  .download-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .download-bar {
+    padding: 0 16px;
+    flex-wrap: wrap;
+  }
+
+  .paper {
+    width: 100%;
+    min-height: auto;
+    box-shadow: none;
+  }
+
+  .doc-meta-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media screen and (max-width: 620px) {
+  .kpi-table {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .doc-meta-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .doc-meta-row span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .download-bar {
+    justify-content: stretch;
+  }
+
+  .download-bar .button {
+    flex: 1 1 150px;
+  }
 }
